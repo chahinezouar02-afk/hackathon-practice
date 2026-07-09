@@ -77,15 +77,36 @@ export default function App() {
   }
 
   const toggleTask = (id) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t))
+  const task = tasks.find(t => t.id === id)
+
+  fetch(`http://127.0.0.1:5000/tasks/${id}`, {
+    method: "PUT",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({
+      title: task.text,
+      done: !task.completed
+    })
+  })
+  .then(() => {
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === id
+        ? {...t, completed: !t.completed}
+        : t
+      )
+    )
+  })
   }
 
   const deleteTask = (id) => {
-    setDeletingId(id)
-    setTimeout(() => {
-      setTasks(prev => prev.filter(t => t.id !== id))
-      setDeletingId(null)
-    }, 280)
+  fetch(`http://127.0.0.1:5000/tasks/${id}`, {
+    method: "DELETE"
+  })
+  .then(() => {
+    setTasks(prev => prev.filter(task => task.id !== id))
+  })
   }
 
   const handleKeyDown = (e) => {
