@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const SAMPLE_TASKS = [
   { id: '1', text: 'Review Q3 product roadmap with design team', completed: false, createdAt: new Date('2026-07-07T09:00:00') },
@@ -18,6 +18,23 @@ function formatDate(date) {
 
 export default function App() {
   const [tasks, setTasks] = useState(SAMPLE_TASKS)
+  
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/tasks")
+      .then(response => response.json())
+      .then(data => {
+        console.log("Data from Flask:", data)
+
+        setTasks(
+          data.map(task => ({
+            id: String(task.id),
+            text: task.title,
+            completed: task.done,
+            createdAt: new Date()
+          }))
+        )
+      })
+  }, [])
   const [input, setInput] = useState('')
   const [filter, setFilter] = useState('all')
   const [deletingId, setDeletingId] = useState(null)
