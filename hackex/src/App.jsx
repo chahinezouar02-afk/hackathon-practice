@@ -41,17 +41,39 @@ export default function App() {
   const inputRef = useRef(null)
 
   const addTask = () => {
-    const text = input.trim()
-    if (!text) return
-    const task = {
-      id: crypto.randomUUID(),
-      text,
-      completed: false,
-      createdAt: new Date(),
-    }
-    setTasks(prev => [task, ...prev])
-    setInput('')
-    inputRef.current?.focus()
+  const text = input.trim()
+  if (!text) return
+
+  const task = {
+    id: Date.now(),
+    title: text,
+    done: false
+  }
+
+  fetch("http://127.0.0.1:5000/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(task)
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Added from Flask:", data)
+
+      setTasks(prev => [
+        {
+          id: String(data.id),
+          text: data.title,
+          completed: data.done,
+          createdAt: new Date()
+        },
+        ...prev
+      ])
+    })
+
+   setInput('')
+   inputRef.current?.focus()
   }
 
   const toggleTask = (id) => {
